@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0c1nach" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.10.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.15.0">
+  <bpmn:process id="ValidationDemande" isExecutable="true">
+    <bpmn:sequenceFlow id="Flow_17pjsf9" sourceRef="initValidationDossier" targetRef="InitiatierDemande" />
+    <bpmn:exclusiveGateway id="Gateway_1p1dqjq">
+      <bpmn:incoming>Flow_0q0xhy2</bpmn:incoming>
+      <bpmn:outgoing>statusOK</bpmn:outgoing>
+      <bpmn:outgoing>statusKO</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_0q0xhy2" sourceRef="VerifierDocuments" targetRef="Gateway_1p1dqjq" />
+    <bpmn:sequenceFlow id="statusOK" name="StatusOK" sourceRef="Gateway_1p1dqjq" targetRef="approuverDemande">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${status == 'OK'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:endEvent id="Event_19tbx0o">
+      <bpmn:incoming>Flow_156nk2s</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_156nk2s" sourceRef="approuverDemande" targetRef="Event_19tbx0o" />
+    <bpmn:sequenceFlow id="statusKO" name="StatusKO" sourceRef="Gateway_1p1dqjq" targetRef="rejeterDemande">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${status == 'KO'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:endEvent id="Event_1ckqfdi">
+      <bpmn:incoming>Flow_1prwi9n</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1prwi9n" sourceRef="rejeterDemande" targetRef="Event_1ckqfdi" />
+    <bpmn:serviceTask id="rejeterDemande" name="RejeterDemande" camunda:class="com.example.workflow.RejeterDocumentsDelegate">
+      <bpmn:incoming>statusKO</bpmn:incoming>
+      <bpmn:outgoing>Flow_1prwi9n</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:startEvent id="initValidationDossier" name="InitValidationDossier">
+      <bpmn:outgoing>Flow_17pjsf9</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="approuverDemande" name="ApprouverDemande">
+      <bpmn:extensionElements>
+        <camunda:taskListener class="com.example.workflow.ApprouverDocumentsDelegate" event="complete" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>statusOK</bpmn:incoming>
+      <bpmn:outgoing>Flow_156nk2s</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_0odxu0y" sourceRef="InitiatierDemande" targetRef="VerifierDocuments" />
+    <bpmn:userTask id="VerifierDocuments" name="VerifierDocuments">
+      <bpmn:extensionElements>
+        <camunda:taskListener class="com.example.workflow.ValidationListener" event="complete" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0odxu0y</bpmn:incoming>
+      <bpmn:outgoing>Flow_0q0xhy2</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="InitiatierDemande" name="InitiatierDemande" camunda:class="com.example.workflow.InitierDemandeDelegate">
+      <bpmn:incoming>Flow_17pjsf9</bpmn:incoming>
+      <bpmn:outgoing>Flow_0odxu0y</bpmn:outgoing>
+    </bpmn:serviceTask>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="ValidationDemande">
+      <bpmndi:BPMNEdge id="Flow_0odxu0y_di" bpmnElement="Flow_0odxu0y">
+        <di:waypoint x="410" y="120" />
+        <di:waypoint x="480" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1prwi9n_di" bpmnElement="Flow_1prwi9n">
+        <di:waypoint x="850" y="230" />
+        <di:waypoint x="912" y="230" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1tsn2ki_di" bpmnElement="statusKO">
+        <di:waypoint x="670" y="145" />
+        <di:waypoint x="670" y="230" />
+        <di:waypoint x="750" y="230" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="661" y="185" width="48" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_156nk2s_di" bpmnElement="Flow_156nk2s">
+        <di:waypoint x="850" y="120" />
+        <di:waypoint x="912" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_09b36e2_di" bpmnElement="statusOK">
+        <di:waypoint x="695" y="120" />
+        <di:waypoint x="750" y="120" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="700" y="102" width="48" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0q0xhy2_di" bpmnElement="Flow_0q0xhy2">
+        <di:waypoint x="580" y="120" />
+        <di:waypoint x="645" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_17pjsf9_di" bpmnElement="Flow_17pjsf9">
+        <di:waypoint x="218" y="120" />
+        <di:waypoint x="310" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Gateway_1p1dqjq_di" bpmnElement="Gateway_1p1dqjq" isMarkerVisible="true">
+        <dc:Bounds x="645" y="95" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_19tbx0o_di" bpmnElement="Event_19tbx0o">
+        <dc:Bounds x="912" y="102" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1ckqfdi_di" bpmnElement="Event_1ckqfdi">
+        <dc:Bounds x="912" y="212" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0kqlmda_di" bpmnElement="rejeterDemande">
+        <dc:Bounds x="750" y="190" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0t5wj5j_di" bpmnElement="initValidationDossier">
+        <dc:Bounds x="182" y="102" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="156" y="145" width="88" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0l6oacm_di" bpmnElement="approuverDemande">
+        <dc:Bounds x="750" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0l8ftbh_di" bpmnElement="VerifierDocuments">
+        <dc:Bounds x="480" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1bmstkc_di" bpmnElement="InitiatierDemande">
+        <dc:Bounds x="310" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
